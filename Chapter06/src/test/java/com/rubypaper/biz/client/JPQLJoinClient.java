@@ -147,19 +147,178 @@ public class JPQLJoinClient {
 		// jpql에 반드시 연관관계에 있는 객체가 언급되어야 한다. 
 		// 세타 조인
 		String jpql = "SELECT e FROM Employee e";
-		TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);
+		TypedQuery<Employee> query = em.createQuery(jpql, Employee.class);
 		
-		List<Object[]> resultList = query.getResultList();
+		List<Employee> resultList = query.getResultList();
 		System.out.println("검색된 직원 목록");
-		for (Object[] result : resultList) {
-			Employee employee = (Employee) result[0];
-			Department department = (Department) result[1];
-			System.out.println(employee.getName() + "의 부서 " + department.getName());
-			// 이름이 영업부인 사람은 들어가겠다.
+		for (Employee employee : resultList) {
+			System.out.println(employee.getName());
 		}		
 
 		em.close();
 	}
+	
+	private static void dataSelect7(EntityManagerFactory emf) {
+		EntityManager em = emf.createEntityManager();
+
+		// 조인 페치 적용 전
+		String jpql = "SELECT e FROM Employee e";
+		TypedQuery<Employee> query = em.createQuery(jpql, Employee.class);
+		
+		List<Employee> resultList = query.getResultList();
+		System.out.println("검색된 직원 목록");
+		for (Employee employee : resultList) {
+			System.out.println(employee.getName());
+		}		
+
+		em.close();
+	}
+	
+	private static void dataSelect8(EntityManagerFactory emf) {
+		EntityManager em = emf.createEntityManager();
+
+		// 조인 페치
+		String jpql = "SELECT e FROM Employee e JOIN FETCH e.dept";
+		TypedQuery<Employee> query = em.createQuery(jpql, Employee.class);
+		
+		List<Employee> resultList = query.getResultList();
+		System.out.println("검색된 직원 목록");
+		for (Employee employee : resultList) {
+			System.out.println(employee.getName());
+		}		
+
+		em.close();
+	}
+	
+	/**
+	 * 만약 조인 조건을 만족하지 못하는 데이터 목록을 모두 보고 싶으면 다음과 같이 아우터 조인을 결합하면 된다.
+	 * @param emf
+	 */
+	private static void dataSelect9(EntityManagerFactory emf) {
+		EntityManager em = emf.createEntityManager();
+
+		// 조인 페치
+		String jpql = "SELECT e FROM Employee e LEFT JOIN FETCH e.dept";
+		TypedQuery<Employee> query = em.createQuery(jpql, Employee.class);
+		
+		List<Employee> resultList = query.getResultList();
+		System.out.println("검색된 직원 목록");
+		for (Employee employee : resultList) {
+			System.out.println(employee.getName());
+		}		
+
+		em.close();
+	}
+	
+	/**
+	 * @param emf
+	 */
+	private static void dataSelect10(EntityManagerFactory emf) {
+		EntityManager em = emf.createEntityManager();
+
+		// 조인 페치
+		String jpql = "SELECT d.name, MAX(e.salary), MIN(e.salary), SUM(e.salary), COUNT(e.salary), AVG(e.salary) FROM Employee e JOIN e.dept d GROUP BY d.name";
+		TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);
+		
+		List<Object[]> resultList = query.getResultList();
+		System.out.println("부서 별 급여 정보");
+		for (Object[] result : resultList) {
+			String deptName = (String) result[0];
+			Double max = (Double) result[1];
+			Double min = (Double) result[2];
+			Double sum = (Double) result[3];
+			Long count = (Long) result[4];
+			Double avg = (Double) result[5];
+			System.out.println(deptName);
+			System.out.println("max is : " + max);
+			System.out.println("min is : " + min);
+			System.out.println("sum is : " + sum);
+			System.out.println("cnt is : " + count);
+			System.out.println("avg is : " + max);
+		}		
+
+		em.close();
+	}
+	
+	/**
+	 * @param emf
+	 */
+	private static void dataSelect11(EntityManagerFactory emf) {
+		EntityManager em = emf.createEntityManager();
+
+		// 조인 페치
+		String jpql = "SELECT d.name, MAX(e.salary), MIN(e.salary), SUM(e.salary), COUNT(e.salary), AVG(e.salary) FROM Employee e JOIN e.dept d GROUP BY d.name HAVING AVG(e.salary) >= 30000.0";
+		TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);
+		
+		List<Object[]> resultList = query.getResultList();
+		System.out.println("부서 별 급여 정보");
+		for (Object[] result : resultList) {
+			String deptName = (String) result[0];
+			Double max = (Double) result[1];
+			Double min = (Double) result[2];
+			Double sum = (Double) result[3];
+			Long count = (Long) result[4];
+			Double avg = (Double) result[5];
+			System.out.println(deptName);
+			System.out.println("max is : " + max);
+			System.out.println("min is : " + min);
+			System.out.println("sum is : " + sum);
+			System.out.println("cnt is : " + count);
+			System.out.println("avg is : " + max);
+		}		
+
+		em.close();
+	}
+	
+	/**
+	 * @param emf
+	 */
+	private static void dataSelect12(EntityManagerFactory emf) {
+		EntityManager em = emf.createEntityManager();
+
+		// 조인 페치
+		String jpql = "SELECT e, e.dept FROM Employee e ORDER BY e.dept.name DESC, e.salary ASC";
+		TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);
+		
+		List<Object[]> resultList = query.getResultList();
+		System.out.println("부서 별 급여 정보");
+		for (Object[] result : resultList) {
+			Employee employee = (Employee) result[0];
+			Department department = (Department) result[1];
+			System.out.println(department.getName() + "에 소속된 " + employee.getName() + "의 급여는 : " + employee.getSalary());
+		}		
+
+		em.close();
+	}
+	
+	/**
+	 * @param emf
+	 */
+	private static void dataSelect13(EntityManagerFactory emf) {
+		EntityManager em = emf.createEntityManager();
+
+		// 조인 페치
+		String jpql = "SELECT e, e.dept FROM Employee e ORDER BY e.id";
+		TypedQuery<Object[]> query = em.createQuery(jpql, Object[].class);
+		int pageNumber = 2;
+		int pageSize = 5;
+		int startNum = (pageNumber * pageSize) - pageSize;
+		query.setFirstResult(startNum);
+		query.setMaxResults(pageSize);
+		
+		List<Object[]> resultList = query.getResultList();
+		System.out.println("부서 별 급여 정보");
+		for (Object[] result : resultList) {
+			Employee employee = (Employee) result[0];
+			Department department = (Department) result[1];
+			System.out.println(department.getName() + "에 소속된 " + employee.getName() + "의 급여는 : " + employee.getSalary());
+		}		
+
+		em.close();
+		
+		
+	}
+	
 
 	private static void dataInsert(EntityManagerFactory emf) {
 		EntityManager em = emf.createEntityManager();
