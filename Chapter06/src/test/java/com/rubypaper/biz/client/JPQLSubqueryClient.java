@@ -17,6 +17,7 @@ public class JPQLSubqueryClient {
 		try {
 			dataInsert(emf);
 			dataSelect(emf);
+			dataSelect1(emf);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -46,7 +47,78 @@ public class JPQLSubqueryClient {
 
 		em.close();
 	}
+	
+	private static void dataSelect1(EntityManagerFactory emf) {
+		EntityManager em = emf.createEntityManager();
 
+		String jpql = "SELECT d FROM Department d WHERE (SELECT COUNT(e) FROM Employee e WHERE d.id = e.dept.deptId) >= 3";
+		TypedQuery<Department> query = em.createQuery(jpql, Department.class);
+
+		List<Department> resultList = query.getResultList();
+		System.out.println("소속된 직원이 3명 이상인 부서 목록");
+		for (Department result : resultList) {
+			System.out.println(result.getName());
+		}
+
+		em.close();
+	}
+
+	/**
+	 * 평균 급여보다 많은 급여를 받는 직원 목록
+	 * @param emf
+	 */
+	private static void dataSelect2(EntityManagerFactory emf) {
+		EntityManager em = emf.createEntityManager();
+
+		String jpql = "SELECT e FROM Employee e WHERE e.salary > (SELECT AVG(e.salary) FROM Employee e)";
+		TypedQuery<Employee> query = em.createQuery(jpql, Employee.class);
+
+		List<Employee> resultList = query.getResultList();
+		System.out.println("평균 급여보다 많은 급여를 받는 직원 목록");
+		for (Employee result : resultList) {
+			System.out.println(result.getName());
+		}
+
+		em.close();
+	}
+	
+	/**
+	 * 평균 급여보다 많은 급여를 받는 직원 목록
+	 * @param emf
+	 */
+	private static void dataSelect3(EntityManagerFactory emf) {
+		EntityManager em = emf.createEntityManager();
+
+		String jpql = "SELECT e FROM Employee e JOIN FETCH e.dept WHERE e.salary > (SELECT AVG(e.salary) FROM Employee e)";
+		TypedQuery<Employee> query = em.createQuery(jpql, Employee.class);
+
+		List<Employee> resultList = query.getResultList();
+		System.out.println("평균 급여보다 많은 급여를 받는 직원 목록");
+		for (Employee result : resultList) {
+			System.out.println(result.getName());
+		}
+
+		em.close();
+	}
+	
+	/**
+	 * 평균 급여보다 많은 급여를 받는 직원 목록
+	 * @param emf
+	 */
+	private static void dataSelect4(EntityManagerFactory emf) {
+		EntityManager em = emf.createEntityManager();
+
+		String jpql = "SELECT e FROM Employee e WHERE NOT EXISTS (SELECT d FROM Department d WHERE d = e.dept)";
+		TypedQuery<Employee> query = em.createQuery(jpql, Employee.class);
+
+		List<Employee> resultList = query.getResultList();
+		System.out.println("평균 급여보다 많은 급여를 받는 직원 목록");
+		for (Employee result : resultList) {
+			System.out.println(result.getName());
+		}
+
+		em.close();
+	}
 
 	private static void dataInsert(EntityManagerFactory emf) {
 		EntityManager em = emf.createEntityManager();
